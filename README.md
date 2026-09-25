@@ -378,4 +378,4 @@ node deploy/verify-login-web.js http://127.0.0.1:3000/
 
 **请注意**：本协议**不是** OSI 认可的开源协议。OSI 开源定义第 6 条禁止协议限制使用领域，因此「禁止商用」的协议只能称为 **源码公开（source-available）**。本仓库源码公开、可自由阅读学习与个人使用，商业使用需获得授权。
 
-`Required Notice: Copyright (c) 2026 colorkaka`
+`Required Notice: Copyright (c) 2026 kakacolor`
