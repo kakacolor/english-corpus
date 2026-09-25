@@ -83,7 +83,7 @@ english-corpus/
 ### 1. 获取代码并安装依赖
 
 ```bash
-git clone https://github.com/colorkaka/english-corpus
+git clone https://github.com/kakacolor/english-corpus
 cd english-corpus
 npm install
 ```
