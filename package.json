@@ -2,6 +2,7 @@
   "name": "english-corpus-vocab",
   "version": "1.0.0",
   "description": "英语语料积累软件 - 拍照识词/单词本/艾宾浩斯背单词/多端同步",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
