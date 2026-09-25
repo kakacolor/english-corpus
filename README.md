@@ -4,6 +4,8 @@
 
 一套代码同时提供 **Web 版**（浏览器直接用）和 **Android / iOS App**（React Native + Expo），后端是 Node.js + Express + MySQL，所有数据存在你自己的服务器上。
 
+> ⚠️ **许可 / License**：本项目使用 [PolyForm Noncommercial License 1.0.0](LICENSE)——**个人学习、研究、教学等非商业用途免费；禁止任何商业使用**，商业使用需另行取得授权。详见文末[许可章节](#许可license)。
+
 ---
 
 ## 功能特性
