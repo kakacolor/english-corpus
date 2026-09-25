@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>英语语料 · 后台管理</title>
+<style>
+  :root {
+    --blue: #2563eb; --blue-dark: #1d4ed8; --red: #dc2626; --green: #16a34a;
+    --bg: #f5f7fb; --card: #fff; --line: #e2e8f0; --text: #1e293b; --muted: #64748b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    font-size: 14px;
+  }
+  h1, h2 { margin: 0 0 10px; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 17px; }
+  label { display: block; margin: 12px 0 6px; font-weight: 600; color: #475569; font-size: 13px; }
+  input, textarea, select {
+    width: 100%; padding: 10px 12px; font-size: 14px; font-family: inherit;
+    border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--text);
+  }
+  textarea { min-height: 150px; line-height: 1.5; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid #bfdbfe; border-color: var(--blue); }
+  button { font-family: inherit; cursor: pointer; }
+  .btn {
+    padding: 9px 14px; font-size: 14px; font-weight: 600; border-radius: 9px;
+    border: 1px solid var(--line); background: #fff; color: var(--text); white-space: nowrap;
+  }
+  .btn:hover { background: #f8fafc; }
+  .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .btn.primary:hover { background: var(--blue-dark); }
+  .btn.danger { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn.danger:hover { background: #b91c1c; }
+  .btn.ghost { background: transparent; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn.sm { padding: 5px 9px; font-size: 12px; border-radius: 7px; font-weight: 500; }
+  .muted { color: var(--muted); font-size: 12px; }
+  .error { color: var(--red); margin-top: 10px; font-size: 13px; }
+  .spacer { flex: 1; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row.end { justify-content: flex-end; margin-top: 18px; }
+
+  /* 登录 */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .login-card { width: 100%; max-width: 380px; padding: 28px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+  .login-card .btn { width: 100%; margin-top: 18px; padding: 12px; }
+  .login-tip { margin-top: 14px; }
+
+  /* 顶栏 */
+  .topbar {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: #fff; border-bottom: 1px solid var(--line); padding: 12px 20px;
+  }
+  .brand { font-weight: 700; font-size: 16px; }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; }
+  .stat { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 6px 11px; font-size: 12px; color: #1d4ed8; }
+  .stat b { font-size: 14px; }
+
+  .wrap { padding: 18px 20px 40px; max-width: 1400px; margin: 0 auto; }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input { width: 240px; }
+  .toolbar .btn { flex-shrink: 0; }
+
+  .table-card { overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+  th { background: #f8fafc; font-size: 12px; color: #475569; position: sticky; top: 0; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--blue); }
+  tbody tr:hover { background: #f8fafc; }
+  td.actions { display: flex; gap: 6px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+  .tag.admin { background: #fef3c7; color: #92400e; }
+  .tag.user { background: #f1f5f9; color: #64748b; }
+  .empty { padding: 40px; text-align: center; color: var(--muted); }
+  .pager { display: flex; align-items: center; gap: 12px; padding: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); }
+  .pager select { width: auto; padding: 6px 8px; }
+
+  /* 弹窗 */
+  .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal[hidden] { display: none; }
+  .modal-box { background: #fff; border-radius: 14px; padding: 22px; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto; }
+  .modal-box.wide { max-width: 720px; }
+  .result { margin-top: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px; }
+  .result.bad { background: #fef2f2; border-color: #fecaca; }
+  .result table { font-size: 13px; }
+  .result th, .result td { padding: 6px 8px; border-bottom: 1px solid #e6f4ea; }
+  .code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; }
+  .toast {
+    position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%);
+    background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 10px; font-size: 13px; z-index: 99;
+  }
+  ul.plain { margin: 8px 0 0; padding-left: 18px; }
+  ul.plain li { margin: 4px 0; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- ==================== 登录 ==================== -->
+<div class="login-wrap" id="loginView">
+  <form class="card login-card" id="loginForm">
+    <h1>英语语料 · 后台管理</h1>
+    <p class="muted">仅管理员账号可登录（users.is_admin = 1）。</p>
+    <label for="loginAccount">账号</label>
+    <input id="loginAccount" autocomplete="username" placeholder="用户名或邮箱" />
+    <label for="loginPassword">密码</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="密码" />
+    <button class="btn primary" type="submit" id="loginBtn">登录</button>
+    <div class="error" id="loginError" hidden></div>
+    <p class="muted login-tip" id="loginTip"></p>
+  </form>
+</div>
+
+<!-- ==================== 主体 ==================== -->
+<div id="appView" hidden>
+  <div class="topbar">
+    <div class="brand">英语语料 · 后台管理</div>
+    <div class="stats" id="stats"></div>
+    <div class="spacer"></div>
+    <span class="muted" id="whoami"></span>
+    <button class="btn ghost" id="btnLogout">退出</button>
+  </div>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <input id="q" placeholder="搜索用户名 / 邮箱，回车查询" />
+      <button class="btn" id="btnSearch">搜索</button>
+      <button class="btn ghost" id="btnRefresh">刷新</button>
+      <div class="spacer"></div>
+      <button class="btn primary" id="btnCreate">＋ 新增用户</button>
+      <button class="btn primary" id="btnBatch">批量新增</button>
+      <button class="btn danger" id="btnBatchDelete" disabled>删除选中</button>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36px"><input type="checkbox" id="checkAll" style="width:auto" /></th>
+              <th class="sortable" data-sort="id">ID</th>
+              <th class="sortable" data-sort="username">用户名</th>
+              <th>邮箱</th>
+              <th class="sortable" data-sort="word_count">单词数</th>
+              <th class="sortable" data-sort="review_count">复习记录</th>
+              <th>待复习</th>
+              <th class="sortable" data-sort="created_at">注册时间</th>
+              <th class="sortable" data-sort="last_login_at">最后登录</th>
+              <th>权限</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button class="btn sm" id="btnPrev">上一页</button>
+        <span class="muted" id="pageInfo"></span>
+        <button class="btn sm" id="btnNext">下一页</button>
+        <div class="spacer"></div>
+        <span class="muted">每页</span>
+        <select id="pageSize">
+          <option>10</option>
+          <option selected>20</option>
+          <option>50</option>
+          <option>100</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="modal-box" id="modalBox"></div></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOKEN_KEY = 'ec_admin_token';
+  var state = {
+    token: '', me: null, page: 1, pageSize: 20, q: '',
+    sort: 'id', dir: 'asc', total: 0, users: [], selected: {},
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fmtTime(v) {
+    if (!v) return '—';
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return esc(v);
+    var p = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function toast(msg, bad) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.style.background = bad ? '#b91c1c' : '#0f172a';
+    t.hidden = false;
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.hidden = true; }, 2600);
+  }
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { toast('已复制'); }, function () { fallback(); });
+      return;
+    }
+    fallback();
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      toast(ok ? '已复制' : '复制失败，请手动选中文本复制', !ok);
+    }
+  }
+  function downloadCsv(filename, rows) {
+    var csv = rows.map(function (r) {
+      return r.map(function (c) { return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // —————————— 请求 ——————————
+  function api(method, path, body) {
+    var opts = { method: method, headers: {} };
+    if (state.token) opts.headers['Authorization'] = 'Bearer ' + state.token;
+    if (body !== undefined) {
+      opts.headers['Content-Type'] = 'application/json';
+      opts.body = JSON.stringify(body);
+    }
+    return fetch('/api/admin' + path, opts).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) {
+        if (r.status === 401) {
+          logout();
+          throw new Error(data.error || '登录已过期，请重新登录');
+        }
+        if (!r.ok) throw new Error(data.error || ('请求失败 HTTP ' + r.status));
+        return data;
+      });
+    });
+  }
+
+  // —————————— 登录 / 退出 ——————————
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var account = $('loginAccount').value.trim();
+    var password = $('loginPassword').value;
+    $('loginError').hidden = true;
+    $('loginBtn').disabled = true;
+    fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account: account, password: password }),
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok) throw new Error(d.error || ('登录失败 HTTP ' + r.status));
+        return d;
+      });
+    }).then(function (d) {
+      state.token = d.token;
+      state.me = d.user;
+      try { sessionStorage.setItem(TOKEN_KEY, d.token); } catch (err) {}
+      $('loginPassword').value = '';
+      showApp();
+    }).catch(function (err) {
+      $('loginError').textContent = err.message;
+      $('loginError').hidden = false;
+    }).then(function () { $('loginBtn').disabled = false; });
+  });
+
+  function logout(msg) {
+    state.token = '';
+    state.me = null;
+    try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+    $('appView').hidden = true;
+    $('loginView').style.display = 'flex';
+    if (msg) $('loginTip').textContent = msg;
+  }
+  $('btnLogout').addEventListener('click', function () { logout(); });
+
+  function showApp() {
+    $('loginView').style.display = 'none';
+    $('appView').hidden = false;
+    $('whoami').textContent = state.me ? ('当前管理员：' + state.me.username) : '';
+    loadStats();
+    loadUsers();
+  }
+
+  // —————————— 统计 ——————————
+  function loadStats() {
+    api('GET', '/stats').then(function (d) {
+      $('stats').innerHTML =
+        '<span class="stat">用户 <b>' + d.users + '</b></span>' +
+        '<span class="stat">管理员 <b>' + d.admins + '</b></span>' +
+        '<span class="stat">单词 <b>' + d.words + '</b></span>' +
+        '<span class="stat">复习记录 <b>' + d.reviews + '</b></span>' +
+        '<span class="stat">待复习 <b>' + d.due + '</b></span>';
+    }).catch(function (err) { toast(err.message, true); });
+  }
+
+  // —————————— 用户列表 ——————————
+  function loadUsers() {
+    var qs = '?page=' + state.page + '&pageSize=' + state.pageSize +
+      '&sort=' + encodeURIComponent(state.sort) + '&dir=' + state.dir +
+      (state.q ? '&q=' + encodeURIComponent(state.q) : '');
+    api('GET', '/users' + qs).then(function (d) {
+      state.users = d.users;
+      state.total = d.total;
+      state.selected = {};
+      renderUsers();
+    }).catch(function (err) { toast(err.message, true); });
+  }
+
+  function renderUsers() {
+    var rows = state.users.map(function (u) {
+      return '<tr>' +
+        '<td><input type="checkbox" class="rowCheck" data-id="' + u.id + '" style="width:auto" /></td>' +
+        '<td>' + u.id + '</td>' +
+        '<td><b>' + esc(u.username) + '</b></td>' +
+        '<td class="muted">' + (u.email ? esc(u.email) : '—') + '</td>' +
+        '<td>' + u.word_count + '</td>' +
+        '<td>' + u.review_count + '</td>' +
+        '<td>' + u.due_count + '</td>' +
+        '<td class="muted">' + fmtTime(u.created_at) + '</td>' +
+        '<td class="muted">' + fmtTime(u.last_login_at) + '</td>' +
+        '<td>' + (u.is_admin ? '<span class="tag admin">管理员</span>' : '<span class="tag user">普通</span>') + '</td>' +
+        '<td class="actions">' +
+          '<button class="btn sm" data-act="detail" data-id="' + u.id + '">详情</button>' +
+          '<button class="btn sm" data-act="pwd" data-id="' + u.id + '">改密码</button>' +
+          '<button class="btn sm" data-act="admin" data-id="' + u.id + '">' + (u.is_admin ? '撤销管理' : '设为管理') + '</button>' +
+          '<button class="btn sm danger" data-act="del" data-id="' + u.id + '">删除</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+
+    $('tbody').innerHTML = rows ||
+      '<tr><td colspan="11" class="empty">没有匹配的用户</td></tr>';
+
+    var pages = Math.max(1, Math.ceil(state.total / state.pageSize));
+    $('pageInfo').textContent = '第 ' + state.page + ' / ' + pages + ' 页 · 共 ' + state.total + ' 个用户';
+    $('btnPrev').disabled = state.page <= 1;
+    $('btnNext').disabled = state.page >= pages;
+    $('checkAll').checked = false;
+    updateBatchButton();
+    renderSortMarks();
+  }
+
+  function renderSortMarks() {
+    var ths = document.querySelectorAll('th.sortable');
+    for (var i = 0; i < ths.length; i++) {
+      var th = ths[i];
+      var base = th.textContent.replace(/ [▲▼]$/, '');
+      th.textContent = base + (th.getAttribute('data-sort') === state.sort ? (state.dir === 'asc' ? ' ▲' : ' ▼') : '');
+    }
+  }
+
+  function selectedIds() {
+    return Object.keys(state.selected).filter(function (k) { return state.selected[k]; }).map(Number);
+  }
+  function updateBatchButton() {
+    var n = selectedIds().length;
+    var b = $('btnBatchDelete');
+    b.disabled = n === 0;
+    b.textContent = n ? ('删除选中 (' + n + ')') : '删除选中';
+  }
+  function findUser(id) {
+    for (var i = 0; i < state.users.length; i++) if (state.users[i].id === Number(id)) return state.users[i];
+    return null;
+  }
+
+  $('tbody').addEventListener('change', function (e) {
+    var cb = e.target;
+    if (!cb.classList || !cb.classList.contains('rowCheck')) return;
+    state.selected[cb.getAttribute('data-id')] = cb.checked;
+    updateBatchButton();
+  });
+
+  $('tbody').addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('button[data-act]') : null;
+    if (!btn) return;
+    var id = Number(btn.getAttribute('data-id'));
+    var act = btn.getAttribute('data-act');
+    if (act === 'detail') dialogDetail(id);
+    else if (act === 'pwd') dialogPassword(id);
+    else if (act === 'admin') toggleAdmin(id);
+    else if (act === 'del') doDelete([id]);
+  });
+
+  $('checkAll').addEventListener('change', function (e) {
+    var on = e.target.checked;
+    state.selected = {};
+    for (var i = 0; i < state.users.length; i++) state.selected[state.users[i].id] = on;
+    var cbs = document.querySelectorAll('.rowCheck');
+    for (var j = 0; j < cbs.length; j++) cbs[j].checked = on;
+    updateBatchButton();
+  });
+
+  $('btnSearch').addEventListener('click', function () { state.q = $('q').value.trim(); state.page = 1; loadUsers(); });
+  $('q').addEventListener('keydown', function (e) { if (e.key === 'Enter') { state.q = $('q').value.trim(); state.page = 1; loadUsers(); } });
+  $('btnRefresh').addEventListener('click', function () { loadStats(); loadUsers(); });
+  $('btnPrev').addEventListener('click', function () { if (state.page > 1) { state.page--; loadUsers(); } });
+  $('btnNext').addEventListener('click', function () { state.page++; loadUsers(); });
+  $('pageSize').addEventListener('change', function () { state.pageSize = Number($('pageSize').value); state.page = 1; loadUsers(); });
+
+  var sortThs = document.querySelectorAll('th.sortable');
+  for (var si = 0; si < sortThs.length; si++) {
+    sortThs[si].addEventListener('click', function () {
+      var key = this.getAttribute('data-sort');
+      if (state.sort === key) state.dir = state.dir === 'asc' ? 'desc' : 'asc';
+      else { state.sort = key; state.dir = 'asc'; }
+      loadUsers();
+    });
+  }
+
+  // —————————— 弹窗 ——————————
+  function openModal(html, wide) {
+    $('modalBox').className = 'modal-box' + (wide ? ' wide' : '');
+    $('modalBox').innerHTML = html;
+    $('modal').hidden = false;
+  }
+  function closeModal() { $('modal').hidden = true; $('modalBox').innerHTML = ''; }
+  $('modal').addEventListener('click', function (e) {
+    if (e.target === $('modal')) closeModal();
+    var c = e.target.closest ? e.target.closest('[data-close]') : null;
+    if (c) closeModal();
+  });
+
+  // 新增单个用户
+  $('btnCreate').addEventListener('click', function () {
+    openModal(
+      '<h2>新增用户</h2>' +
+      '<label>用户名 *（至少 3 个字符，不能含空格）</label>' +
+      '<input id="cUser" placeholder="例如 student01" />' +
+      '<label>密码（留空则自动生成 10 位随机密码）</label>' +
+      '<input id="cPass" placeholder="至少 8 位" />' +
+      '<label>邮箱（可选）</label>' +
+      '<input id="cMail" placeholder="可留空" />' +
+      '<div class="row end"><button class="btn ghost" data-close>取消</button>' +
+      '<button class="btn primary" id="cOk">创建</button></div>' +
+      '<div id="cOut" hidden></div>'
+    );
+    $('cOk').addEventListener('click', function () {
+      var username = $('cUser').value.trim();
+      var password = $('cPass').value;
+      var email = $('cMail').value.trim();
+      if (!username) { toast('请填写用户名', true); return; }
+      $('cOk').disabled = true;
+      api('POST', '/users', { username: username, password: password || undefined, email: email || undefined })
+        .then(function (d) {
+          var out = $('cOut');
+          out.hidden = false;
+          out.className = 'result';
+          out.innerHTML = '<b>创建成功</b><ul class="plain">' +
+            '<li>用户名：<span class="code">' + esc(d.user.username) + '</span></li>' +
+            '<li>密码：<span class="code">' + esc(d.password) + '</span> ' +
+            (d.generated ? '<span class="muted">（自动生成，请立即保存）</span>' : '') + '</li></ul>' +
+            '<div class="row end"><button class="btn sm" id="cCopy">复制账号密码</button>' +
+            '<button class="btn sm ghost" data-close>关闭</button></div>';
+          $('cCopy').addEventListener('click', function () {
+            copyText(d.user.username + '  ' + d.password);
+          });
+          loadStats(); loadUsers();
+        })
+        .catch(function (err) {
+          var out = $('cOut');
+          out.hidden = false;
+          out.className = 'result bad';
+          out.innerHTML = '<b>创建失败：</b>' + esc(err.message);
+        })
+        .then(function () { $('cOk').disabled = false; });
+    });
+  });
+
+  // 批量新增
+  $('btnBatch').addEventListener('click', function () {
+    openModal(
+      '<h2>批量新增用户</h2>' +
+      '<p class="muted">每行一个用户，支持三种写法：<br/>' +
+      '<span class="code">用户名</span>（密码自动生成）／' +
+      '<span class="code">用户名,密码</span>／' +
+      '<span class="code">用户名,密码,邮箱</span><br/>' +
+      '逗号可用中文逗号或 Tab 分隔；一次最多 200 个。用户名重复的行会单独报错，不影响其它行。</p>' +
+      '<textarea id="bText" placeholder="student01&#10;student02,Passw0rd88&#10;student03,Passw0rd88,s03@example.com"></textarea>' +
+      '<div class="row end"><button class="btn ghost" data-close>取消</button>' +
+      '<button class="btn primary" id="bOk">开始创建</button></div>' +
+      '<div id="bOut" hidden></div>',
+      true
+    );
+    $('bOk').addEventListener('click', function () {
+      var items = parseBatch($('bText').value);
+      if (!items.length) { toast('请先粘贴用户列表', true); return; }
+      if (items.length > 200) { toast('一次最多 200 个用户', true); return; }
+      $('bOk').disabled = true;
+      $('bOk').textContent = '创建中…';
+      api('POST', '/users/batch', { items: items }).then(function (d) {
+        renderBatchResult(d);
+        loadStats(); loadUsers();
+      }).catch(function (err) {
+        var out = $('bOut');
+        out.hidden = false;
+        out.className = 'result bad';
+        out.innerHTML = '<b>创建失败：</b>' + esc(err.message);
+      }).then(function () {
+        $('bOk').disabled = false;
+        $('bOk').textContent = '开始创建';
+      });
+    });
+  });
+
+  function parseBatch(text) {
+    return String(text || '').split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean)
+      .map(function (line) {
+        var parts = line.split(/[,\t，]/).map(function (s) { return s.trim(); });
+        return { username: parts[0] || '', password: parts[1] || '', email: parts[2] || '' };
+      });
+  }
+
+  var lastBatch = null;
+  function renderBatchResult(d) {
+    lastBatch = d.created;
+    var rows = d.created.map(function (u) {
+      return '<tr><td>' + esc(u.username) + '</td><td><span class="code">' + esc(u.password) + '</span></td>' +
+        '<td class="muted">' + (u.email ? esc(u.email) : '—') + '</td><td>' + (u.generated ? '自动生成' : '指定') + '</td></tr>';
+    }).join('');
+    var failRows = (d.failed || []).map(function (f) {
+      return '<li>' + esc(f.username || '(空)') + '：' + esc(f.error) + '</li>';
+    }).join('');
+
+    var out = $('bOut');
+    out.hidden = false;
+    out.className = 'result';
+    out.innerHTML =
+      '<b>成功创建 ' + d.created.length + ' 个' + (d.failed && d.failed.length ? '，失败 ' + d.failed.length + ' 个' : '') + '</b>' +
+      (rows ? '<div class="table-scroll" style="margin-top:8px"><table><thead><tr><th>用户名</th><th>密码</th><th>邮箱</th><th>来源</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '') +
+      (failRows ? '<div style="margin-top:10px"><b style="color:#b91c1c">失败明细</b><ul class="plain">' + failRows + '</ul></div>' : '') +
+      (rows ? '<div class="row end"><button class="btn sm" id="bCopy">复制全部</button>' +
+        '<button class="btn sm" id="bCsv">导出 CSV</button></div>' : '');
+    if ($('bCopy')) {
+      $('bCopy').addEventListener('click', function () {
+        copyText(lastBatch.map(function (u) { return u.username + '  ' + u.password; }).join('\n'));
+      });
+    }
+    if ($('bCsv')) {
+      $('bCsv').addEventListener('click', function () {
+        downloadCsv('新用户-' + new Date().toISOString().slice(0, 10) + '.csv',
+          [['用户名', '密码', '邮箱']].concat(lastBatch.map(function (u) { return [u.username, u.password, u.email || '']; })));
+      });
+    }
+  }
+
+  // 重置密码
+  function dialogPassword(id) {
+    var u = findUser(id);
+    openModal(
+      '<h2>重置密码</h2>' +
+      '<p class="muted">用户：<b>' + esc(u ? u.username : ('#' + id)) + '</b>（立即生效，旧密码失效）</p>' +
+      '<label>新密码（留空则自动生成）</label>' +
+      '<input id="pPass" placeholder="至少 8 位" />' +
+      '<div class="row end"><button class="btn ghost" data-close>取消</button>' +
+      '<button class="btn primary" id="pOk">确定重置</button></div>' +
+      '<div id="pOut" hidden></div>'
+    );
+    $('pOk').addEventListener('click', function () {
+      var pw = $('pPass').value;
+      $('pOk').disabled = true;
+      api('PUT', '/users/' + id + '/password', { password: pw || undefined }).then(function (d) {
+        var out = $('pOut');
+        out.hidden = false;
+        out.className = 'result';
+        out.innerHTML = '<b>已重置</b><ul class="plain"><li>用户：<span class="code">' + esc(d.id) + '</span></li>' +
+          '<li>新密码：<span class="code">' + esc(d.password) + '</span>' + (d.generated ? ' <span class="muted">（自动生成）</span>' : '') + '</li></ul>' +
+          '<div class="row end"><button class="btn sm" id="pCopy">复制新密码</button>' +
+          '<button class="btn sm ghost" data-close>关闭</button></div>';
+        $('pCopy').addEventListener('click', function () { copyText(d.password); });
+      }).catch(function (err) {
+        var out = $('pOut');
+        out.hidden = false;
+        out.className = 'result bad';
+        out.innerHTML = '<b>失败：</b>' + esc(err.message);
+      }).then(function () { $('pOk').disabled = false; });
+    });
+  }
+
+  // 用户详情
+  function dialogDetail(id) {
+    openModal('<h2>加载中…</h2>', true);
+    api('GET', '/users/' + id).then(function (d) {
+      var u = d.user;
+      var words = (d.words || []).map(function (w) {
+        return '<tr><td>' + w.id + '</td><td><b>' + esc(w.word) + '</b></td><td class="muted">' + esc(w.user_meaning || '') + '</td>' +
+          '<td class="muted">' + fmtTime(w.created_at) + '</td></tr>';
+      }).join('');
+      openModal(
+        '<h2>用户详情 #' + u.id + ' · ' + esc(u.username) + '</h2>' +
+        '<ul class="plain">' +
+        '<li>邮箱：' + (u.email ? esc(u.email) : '—') + '</li>' +
+        '<li>权限：' + (u.is_admin ? '管理员' : '普通用户') + '</li>' +
+        '<li>注册：' + fmtTime(u.created_at) + '　最后登录：' + fmtTime(u.last_login_at) + '</li>' +
+        '<li>单词 <b>' + d.stats.words + '</b> 个　复习记录 <b>' + d.stats.reviews + '</b> 条　已掌握 <b>' + d.stats.mastered + '</b>　待复习 <b>' + d.stats.due + '</b></li>' +
+        '</ul>' +
+        '<h2 style="margin-top:18px">最近 20 个单词</h2>' +
+        (words ? '<div class="table-scroll"><table><thead><tr><th>ID</th><th>单词</th><th>中文意思</th><th>加入时间</th></tr></thead><tbody>' + words + '</tbody></table></div>'
+               : '<p class="muted">该用户还没有单词。</p>') +
+        '<div class="row end"><button class="btn ghost" data-close>关闭</button></div>',
+        true
+      );
+    }).catch(function (err) {
+      openModal('<h2>加载失败</h2><p class="error">' + esc(err.message) + '</p>' +
+        '<div class="row end"><button class="btn ghost" data-close>关闭</button></div>');
+    });
+  }
+
+  // 管理员开关
+  function toggleAdmin(id) {
+    var u = findUser(id);
+    if (!u) return;
+    var text = u.is_admin
+      ? ('撤销「' + u.username + '」的管理员权限？')
+      : ('把「' + u.username + '」设为管理员？（可登录后台管理）');
+    if (!window.confirm(text)) return;
+    api('PUT', '/users/' + id + '/admin', { is_admin: u.is_admin ? 0 : 1 })
+      .then(function () { toast('已更新'); loadStats(); loadUsers(); })
+      .catch(function (err) { toast(err.message, true); });
+  }
+
+  // 删除
+  $('btnBatchDelete').addEventListener('click', function () { doDelete(selectedIds()); });
+
+  function doDelete(ids) {
+    if (!ids.length) return;
+    var names = ids.map(function (id) { var u = findUser(id); return u ? u.username : ('#' + id); });
+    var preview = names.slice(0, 10).join('、') + (names.length > 10 ? ' 等 ' + names.length + ' 个' : '');
+    if (!window.confirm('确定删除这些用户吗？\n\n' + preview + '\n\n该用户的单词、复习记录、AI 配置都会一并删除，且无法恢复。')) return;
+    if (!window.confirm('再次确认：删除后无法恢复，确定继续？')) return;
+
+    var req = ids.length === 1
+      ? api('DELETE', '/users/' + ids[0])
+      : api('POST', '/users/batch-delete', { ids: ids });
+
+    req.then(function (d) {
+      var msg = '已删除 ' + d.deleted.length + ' 个用户';
+      if (d.skipped && d.skipped.length) {
+        msg += '，跳过 ' + d.skipped.length + ' 个：' +
+          d.skipped.map(function (s) { return (s.username || ('#' + s.id)) + '（' + s.reason + '）'; }).join('；');
+      }
+      toast(msg, !!(d.skipped && d.skipped.length));
+      loadStats(); loadUsers();
+    }).catch(function (err) { toast(err.message, true); });
+  }
+
+  // —————————— 启动 ——————————
+  try {
+    var saved = sessionStorage.getItem(TOKEN_KEY);
+    if (saved) {
+      state.token = saved;
+      api('GET', '/me').then(function (d) {
+        state.me = d.user;
+        showApp();
+      }).catch(function () { /* api() 已处理 401 */ });
+    }
+  } catch (e) { /* ignore */ }
+})();
+</script>
+</body>
+</html>

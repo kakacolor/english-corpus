@@ -1,0 +1,15 @@
+node_modules/
+.env
+*.log
+app/node_modules/
+app/.expo/
+app/dist/
+app/android/
+app/ios/
+.DS_Store
+.vscode/
+.idea/
+
+# Web 前端构建产物（由 app/dist 拷入），仅保留目录占位
+web/*
+!web/.gitkeep

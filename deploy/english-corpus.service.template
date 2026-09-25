@@ -1,0 +1,19 @@
+[Unit]
+Description=English Corpus Vocabulary Backend (@SERVICE_NAME@)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=@APP_DIR@
+ExecStart=@NODE_BIN@ src/server.js
+Restart=always
+RestartSec=3
+# 运行身份与端口/密钥等全部来自同目录 .env
+User=@RUN_USER@
+EnvironmentFile=@APP_DIR@/.env
+# 生产加固。注意：若 node 装在 /root/.nvm 下并以 root 运行，不要开启 ProtectHome
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

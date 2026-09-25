@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "英语语料积累",
+    "slug": "english-corpus-app",
+    "version": "1.3.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.englishcorpus.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "用于拍照识别并积累英语单词",
+        "NSPhotoLibraryUsageDescription": "选择照片识别单词"
+      }
+    },
+    "android": {
+      "package": "com.englishcorpus.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2563eb"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      ["expo-camera", { "cameraPermission": "允许访问相机以拍照识别单词" }],
+      ["expo-image-picker", { "photosPermission": "允许访问相册以选择图片识别单词" }],
+      ["expo-build-properties", { "android": { "usesCleartextTraffic": true } }],
+      "expo-secure-store"
+    ],
+    "extra": {}
+  }
+}

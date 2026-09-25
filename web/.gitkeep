@@ -1,0 +1,2 @@
+此目录用于存放 Web 前端构建产物。
+执行 `cd app && npm run build:web` 后，把 `app/dist/*` 拷贝到这里，后端会托管该目录。

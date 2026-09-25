@@ -1,0 +1,24 @@
+# 英语语料积累软件 - MySQL 独立数据库（Docker 部署可选）
+#
+# 所有值都来自项目根目录的 .env（docker compose 会自动读取同目录下的 .env），
+# 因此迁移服务器时无需修改本文件。
+# 使用前请确认 .env 里已设置 DB_ROOT_PASSWORD、DB_PASSWORD。
+services:
+  db:
+    image: mysql:8.0
+    container_name: ${DB_CONTAINER_NAME:-english-corpus-db}
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?请先在根目录 .env 里设置 DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-english_corpus}
+      MYSQL_USER: ${DB_USER:-english_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?请先在根目录 .env 里设置 DB_PASSWORD}
+    ports:
+      # 宿主机端口取自 .env 的 DB_PORT（应用就是通过它连库）
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  db_data:

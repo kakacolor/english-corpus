@@ -1,0 +1,12 @@
+# EAS 云端构建上传时的排除规则。
+# 注意：一旦存在本文件，EAS 就只按它过滤（不再用 .gitignore），
+# 所以这里必须保留 node_modules 等大目录的排除，同时**不要**排除 .env
+# —— app/.env 由 scripts/make-app-env.js 生成，需要随构建上传，
+#    否则打出来的 APK 不知道后端地址。
+node_modules/
+dist/
+.expo/
+android/
+ios/
+*.tar
+*.log
